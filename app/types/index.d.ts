@@ -58,3 +58,45 @@ export interface Range {
   start: Date
   end: Date
 }
+
+export type InventoryCategory = 'SIM' | 'Devices' | 'Gifts' | 'Supply'
+export type InventoryStatus = 'active' | 'inactive'
+
+export interface InventoryItem {
+  id: string
+  productName: string
+  sku: string
+  location: string
+  stock: number
+  trackedBy: string
+  category: InventoryCategory
+  status: InventoryStatus
+}
+
+export type MetricTrend = 'up' | 'down'
+
+export interface InventoryMetric {
+  title: string
+  value: string
+  variation: number
+  trend: MetricTrend
+  data: number[]
+}
+
+export interface LowStockItem {
+  id: string
+  name: string
+  threshold: number
+  current: number
+}
+
+export type IncomingStatus = 'in-transit' | 'processing' | 'scheduled'
+
+export interface IncomingStockItem {
+  id: string
+  name: string
+  threshold: number
+  current: number
+  date: string
+  status: IncomingStatus
+}

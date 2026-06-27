@@ -19,7 +19,7 @@ const links = [[{
   }, {
     label: 'Product',
     icon: 'i-lucide-package',
-    to: '/product',
+    to: '/products',
     onSelect: () => {
       open.value = false
     }
@@ -49,6 +49,32 @@ const links = [[{
   children: [{
     label: 'Invoices',
     to: '/billing',
+    onSelect: () => {
+      open.value = false
+    }
+  }]
+}, {
+  label: 'Configuration',
+  icon: 'i-lucide-settings-2',
+  type: 'trigger',
+  children: [{
+    label: 'Field Setting',
+    icon: 'i-lucide-sliders-horizontal',
+    to: '/config/field',
+    onSelect: () => {
+      open.value = false
+    }
+  }, {
+    label: 'Pricing Plan',
+    icon: 'i-lucide-badge-dollar-sign',
+    to: '/config/pricing-plan',
+    onSelect: () => {
+      open.value = false
+    }
+  }, {
+    label: 'Pricing List',
+    icon: 'i-lucide-list',
+    to: '/config/pricing-list',
     onSelect: () => {
       open.value = false
     }

@@ -109,3 +109,97 @@ export interface PhysicalInventoryItem {
   sku: string
   onHand: number
 }
+
+export type CustomFieldType = 'Text' | 'Date' | 'Number' | 'Dropdown'
+
+export interface CustomField {
+  id: string
+  label: string
+  fieldType: CustomFieldType
+  fieldLocation: string
+  section: string
+  required: boolean
+  visibility: boolean
+  description?: string
+  conditionalVisibility?: boolean
+}
+
+export type DeliveryOrderStatus = 'Draft' | 'Pending' | 'On Delivery' | 'Delivered'
+
+export interface DeliveryOrderListItem {
+  id: string
+  reference: string
+  destination: string
+  scheduleDate: string
+  status: DeliveryOrderStatus
+}
+
+export interface DeliveryOrderProduct {
+  productName: string
+  demand: number
+  productCategory: string
+  productStatus?: string
+}
+
+export type DeliveryOrderWorkflowStatus = 'Waiting' | 'Ready' | 'Draft'
+
+export interface DeliveryOrderQuantityItem {
+  id: string
+  productName: string
+  lotSerial: string
+  demand: number
+  quantity: number
+  stock: number
+}
+
+export interface DeliveryOrder extends DeliveryOrderListItem {
+  warehouseRef: string
+  sourceLocation: string
+  operationType: string
+  shippingPolicy: string
+  scheduleAt?: string
+  workflowStatus?: DeliveryOrderWorkflowStatus
+  products: DeliveryOrderProduct[]
+  quantityItems?: DeliveryOrderQuantityItem[]
+}
+
+export type ProductStatus = 'Active' | 'Inactive'
+
+export type ProductPricingStatus = 'Active' | 'Inactive'
+
+export type ProductPricingType = 'Subscription' | 'One Time Payment'
+
+export interface ProductListItem {
+  id: string
+  name: string
+  reference: string
+  category: string
+  productType: string
+  company: string
+  trackedBy: string
+  status: ProductStatus
+}
+
+export interface ProductPricing {
+  id: string
+  priceVersion: string
+  monthlyFee: string
+  initialFee: string
+  status: ProductPricingStatus
+  statusSince: string
+  pricingType?: ProductPricingType
+  pricingPlan?: string
+  depositFee?: string
+  activationMethod?: 'scheduled' | 'immediate'
+  pricingActive?: boolean
+}
+
+export interface Product extends ProductListItem {
+  sku: string
+  notes?: string
+  settingsCategory: string
+  platform: string
+  published: boolean
+  trackInventory: boolean
+  pricing: ProductPricing[]
+}

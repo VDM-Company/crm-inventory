@@ -1,0 +1,183 @@
+import type { Product, ProductListItem } from '~/types'
+
+const basePricing = [{
+  id: '1',
+  priceVersion: 'V.1',
+  monthlyFee: '¥20.000 JYP',
+  initialFee: '¥1000 JYP',
+  status: 'Inactive' as const,
+  statusSince: 'Since Apr 24, 2026'
+}, {
+  id: '2',
+  priceVersion: 'V.2',
+  monthlyFee: '¥20.000 JYP',
+  initialFee: '¥1000 JYP',
+  status: 'Active' as const,
+  statusSince: 'Since Apr 24, 2026'
+}]
+
+export const products: Product[] = [{
+  id: '1',
+  name: 'SIM CARD 001',
+  reference: '002415515616',
+  category: 'SIM Cards',
+  productType: 'Single',
+  company: 'VDM',
+  trackedBy: 'Unique Serial Number',
+  status: 'Active',
+  sku: 'SIM-001',
+  notes: '',
+  settingsCategory: 'Sim / Sim Cards',
+  platform: 'SK',
+  published: true,
+  trackInventory: true,
+  pricing: basePricing
+}, {
+  id: '2',
+  name: 'SIM CARD 001',
+  reference: '002415515617',
+  category: 'Smartphones',
+  productType: 'Single',
+  company: 'VDS',
+  trackedBy: 'Unique Serial Number',
+  status: 'Active',
+  sku: 'SIM-002',
+  settingsCategory: 'Smartphones',
+  platform: 'SK',
+  published: true,
+  trackInventory: true,
+  pricing: []
+}, {
+  id: '3',
+  name: 'SIM CARD 002',
+  reference: '002415515618',
+  category: 'Tablets',
+  productType: 'Dual',
+  company: 'VDM',
+  trackedBy: 'Lot',
+  status: 'Inactive',
+  sku: 'SIM-003',
+  settingsCategory: 'Tablets',
+  platform: 'SK',
+  published: false,
+  trackInventory: false,
+  pricing: []
+}, {
+  id: '4',
+  name: 'SIM CARD 003',
+  reference: '002415515619',
+  category: 'SIM Cards',
+  productType: 'Single',
+  company: 'VDS',
+  trackedBy: 'Unique Serial Number',
+  status: 'Active',
+  sku: 'SIM-004',
+  settingsCategory: 'Sim / Sim Cards',
+  platform: 'SK',
+  published: true,
+  trackInventory: true,
+  pricing: []
+}, {
+  id: '5',
+  name: 'SIM CARD 004',
+  reference: '002415515620',
+  category: 'Smartphones',
+  productType: 'Dual',
+  company: 'VDM',
+  trackedBy: 'Lot',
+  status: 'Inactive',
+  sku: 'SIM-005',
+  settingsCategory: 'Smartphones',
+  platform: 'SK',
+  published: false,
+  trackInventory: true,
+  pricing: []
+}, {
+  id: '6',
+  name: 'SIM CARD 005',
+  reference: '002415515621',
+  category: 'Tablets',
+  productType: 'Single',
+  company: 'VDS',
+  trackedBy: 'Unique Serial Number',
+  status: 'Active',
+  sku: 'SIM-006',
+  settingsCategory: 'Tablets',
+  platform: 'SK',
+  published: true,
+  trackInventory: true,
+  pricing: []
+}, {
+  id: '7',
+  name: 'SIM CARD 006',
+  reference: '002415515622',
+  category: 'SIM Cards',
+  productType: 'Dual',
+  company: 'VDM',
+  trackedBy: 'Lot',
+  status: 'Inactive',
+  sku: 'SIM-007',
+  settingsCategory: 'Sim / Sim Cards',
+  platform: 'SK',
+  published: false,
+  trackInventory: false,
+  pricing: []
+}, {
+  id: '8',
+  name: 'SIM CARD 007',
+  reference: '002415515623',
+  category: 'Smartphones',
+  productType: 'Single',
+  company: 'VDS',
+  trackedBy: 'Unique Serial Number',
+  status: 'Active',
+  sku: 'SIM-008',
+  settingsCategory: 'Smartphones',
+  platform: 'SK',
+  published: true,
+  trackInventory: true,
+  pricing: []
+}, {
+  id: '9',
+  name: 'SIM CARD 008',
+  reference: '002415515624',
+  category: 'Tablets',
+  productType: 'Dual',
+  company: 'VDM',
+  trackedBy: 'Lot',
+  status: 'Inactive',
+  sku: 'SIM-009',
+  settingsCategory: 'Tablets',
+  platform: 'SK',
+  published: false,
+  trackInventory: true,
+  pricing: []
+}, {
+  id: '10',
+  name: 'SIM CARD 009',
+  reference: '002415515625',
+  category: 'SIM Cards',
+  productType: 'Single',
+  company: 'VDS',
+  trackedBy: 'Unique Serial Number',
+  status: 'Active',
+  sku: 'SIM-010',
+  settingsCategory: 'Sim / Sim Cards',
+  platform: 'SK',
+  published: true,
+  trackInventory: true,
+  pricing: []
+}]
+
+export function toProductListItem(product: Product): ProductListItem {
+  return {
+    id: product.id,
+    name: product.name,
+    reference: product.reference,
+    category: product.category,
+    productType: product.productType,
+    company: product.company,
+    trackedBy: product.trackedBy,
+    status: product.status
+  }
+}

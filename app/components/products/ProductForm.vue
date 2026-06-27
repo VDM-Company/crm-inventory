@@ -3,7 +3,7 @@ import * as z from 'zod'
 import type { Product, ProductPricing, ProductStatus } from '~/types'
 
 const props = withDefaults(defineProps<{
-  mode?: 'create' | 'detail'
+  mode?: 'create' | 'edit'
   product?: Product | null
   cancelTo?: string
   submitLabel?: string
@@ -206,7 +206,7 @@ function addPricing(payload: Omit<ProductPricing, 'id' | 'statusSince'> & { stat
           {{ breadcrumbCurrent }}
         </h1>
         <p class="text-sm text-muted">
-          Create new product for tracking the data and information
+          {{ mode === 'edit' ? 'Update product data and information' : 'Create new product for tracking the data and information' }}
         </p>
       </div>
     </div>

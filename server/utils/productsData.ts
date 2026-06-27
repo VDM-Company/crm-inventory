@@ -18,20 +18,49 @@ const basePricing = [{
 
 export const products: Product[] = [{
   id: '1',
-  name: 'SIM CARD 001',
-  reference: '002415515616',
-  category: 'SIM Cards',
-  productType: 'Single',
+  name: 'internet Wifi 10GB',
+  reference: '220041515125',
+  category: 'WIFI',
+  productType: 'Bundle',
   company: 'VDM',
   trackedBy: 'Unique Serial Number',
   status: 'Active',
-  sku: 'SIM-001',
+  sku: 'WIFI-001',
   notes: '',
-  settingsCategory: 'Sim / Sim Cards',
+  settingsCategory: 'WIFI',
   platform: 'SK',
   published: true,
   trackInventory: true,
-  pricing: basePricing
+  pricing: basePricing,
+  bundle: {
+    totalQuantity: 5,
+    components: [{
+      id: 'device',
+      name: 'Device Component',
+      items: [{
+        name: 'Nec Device',
+        sku: 'nec_device_sku',
+        quantity: 5
+      }, {
+        name: 'Nec Device',
+        sku: 'x4_device_sku',
+        quantity: 6
+      }]
+    }, {
+      id: 'sim',
+      name: 'SIM Card Component',
+      required: true,
+      items: [{
+        name: 'Docomo 1GB',
+        sku: 'd_1gb_device_sku',
+        quantity: 2
+      }, {
+        name: 'Softbank 1GB',
+        sku: 's_1gb_device_sku',
+        quantity: 3
+      }]
+    }]
+  }
 }, {
   id: '2',
   name: 'SIM CARD 001',

@@ -2,6 +2,12 @@
 import * as z from 'zod'
 import type { CustomFieldType } from '~/types'
 
+const conditionSchema = z.object({
+  field: z.string().min(1, 'Field is required'),
+  operator: z.string().min(1, 'Operator is required'),
+  value: z.string().min(1, 'Value is required')
+})
+
 const schema = z.object({
   label: z.string().min(1, 'Field label is required'),
   fieldType: z.enum(['Text', 'Date', 'Number', 'Dropdown']),
@@ -9,7 +15,16 @@ const schema = z.object({
   fieldSection: z.string().min(1, 'Field section is required'),
   description: z.string().optional(),
   markAsRequired: z.boolean(),
-  conditionalVisibility: z.boolean()
+  conditionalVisibilityEnabled: z.boolean(),
+  conditionalVisibility: z.array(conditionSchema)
+}).superRefine((data, ctx) => {
+  if (data.conditionalVisibilityEnabled && data.conditionalVisibility.length === 0) {
+    ctx.addIssue({
+      code: 'custom',
+      message: 'Add at least one condition',
+      path: ['conditionalVisibility']
+    })
+  }
 })
 
 type Schema = z.output<typeof schema>
@@ -21,7 +36,8 @@ const state = reactive<Schema>({
   fieldSection: '',
   description: '',
   markAsRequired: false,
-  conditionalVisibility: false
+  conditionalVisibilityEnabled: false,
+  conditionalVisibility: []
 })
 
 const confirmOpen = ref(false)
@@ -52,8 +68,21 @@ const fieldSectionOptions = [
   { label: 'Add Delivery', value: 'Add Delivery' }
 ]
 
+watch(() => state.conditionalVisibilityEnabled, (enabled) => {
+  if (!enabled) {
+    state.conditionalVisibility = []
+  }
+})
+
 function openSaveConfirm() {
-  const result = schema.safeParse(state)
+  const payload = {
+    ...state,
+    conditionalVisibility: state.conditionalVisibilityEnabled
+      ? state.conditionalVisibility
+      : []
+  }
+
+  const result = schema.safeParse(payload)
 
   if (!result.success) {
     toast.add({
@@ -180,56 +209,45 @@ function confirmSave() {
               <UFormField label="Description" name="description">
                 <UTextarea
                   v-model="state.description"
-                  placeholder="Enter description (optional)"
+                  placeholder="Input description here"
                   class="w-full"
                   :rows="3"
                 />
               </UFormField>
 
               <UFormField name="markAsRequired">
-                <div class="flex items-center justify-between gap-4">
-                  <span class="text-sm font-medium text-highlighted">Mark as required</span>
-                  <USwitch v-model="state.markAsRequired" />
-                </div>
-              </UFormField>
-
-              <UFormField name="conditionalVisibility">
-                <div class="flex items-center justify-between gap-4">
-                  <div>
-                    <span class="text-sm font-medium text-highlighted">Conditional Visibility</span>
-                    <span class="ml-1 text-xs text-muted">(Optional)</span>
+                <div class="space-y-2">
+                  <div class="flex items-center justify-between gap-4">
+                    <span class="text-sm font-medium text-highlighted">Mark as required</span>
+                    <USwitch v-model="state.markAsRequired" />
                   </div>
-                  <USwitch v-model="state.conditionalVisibility" />
+                  <p class="text-sm text-muted">
+                    If enabled, users cannot submit the form without filling this field.
+                  </p>
+                </div>
+              </UFormField>
+
+              <UFormField name="conditionalVisibilityEnabled">
+                <div class="space-y-2">
+                  <span class="text-sm font-medium text-highlighted">Conditional Visibility</span>
+                  <div class="flex items-center gap-2">
+                    <USwitch v-model="state.conditionalVisibilityEnabled" />
+                    <span
+                      v-if="state.conditionalVisibilityEnabled"
+                      class="text-sm text-muted"
+                    >
+                      Yes
+                    </span>
+                  </div>
                 </div>
               </UFormField>
             </div>
           </UCard>
 
-          <UCard>
-            <template #header>
-              <div>
-                <h2 class="text-base font-semibold text-highlighted">
-                  Conditional Visibility
-                </h2>
-                <span class="text-xs text-muted">(Optional)</span>
-              </div>
-            </template>
-
-            <div class="flex flex-col items-center gap-3 py-8 text-center">
-              <div class="flex items-center justify-center size-12 rounded-full bg-elevated">
-                <UIcon name="i-lucide-git-branch" class="size-6 text-dimmed" />
-              </div>
-              <p class="text-sm text-muted">
-                No conditions added yet
-              </p>
-              <UButton
-                label="Add First Condition"
-                icon="i-lucide-plus"
-                color="neutral"
-                variant="outline"
-              />
-            </div>
-          </UCard>
+          <ConfigConditionalVisibilitySection
+            v-if="state.conditionalVisibilityEnabled"
+            v-model:conditions="state.conditionalVisibility"
+          />
         </UForm>
       </div>
 

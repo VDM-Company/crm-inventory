@@ -112,6 +112,12 @@ export interface PhysicalInventoryItem {
 
 export type CustomFieldType = 'Text' | 'Date' | 'Number' | 'Dropdown'
 
+export interface CustomFieldCondition {
+  field: string
+  operator: string
+  value: string
+}
+
 export interface CustomField {
   id: string
   label: string
@@ -121,7 +127,7 @@ export interface CustomField {
   required: boolean
   visibility: boolean
   description?: string
-  conditionalVisibility?: boolean
+  conditionalVisibility?: CustomFieldCondition[]
 }
 
 export type DeliveryOrderStatus = 'Draft' | 'Pending' | 'On Delivery' | 'Delivered'
@@ -163,6 +169,45 @@ export interface DeliveryOrder extends DeliveryOrderListItem {
   quantityItems?: DeliveryOrderQuantityItem[]
 }
 
+export type ReceiptStatus = DeliveryOrderStatus
+
+export type ReceiptWorkflowStatus = DeliveryOrderWorkflowStatus
+
+export interface ReceiptListItem {
+  id: string
+  reference: string
+  destination: string
+  scheduleDate: string
+  status: ReceiptStatus
+}
+
+export interface ReceiptProduct {
+  productName: string
+  demand: number
+  productCategory: string
+  productStatus?: string
+}
+
+export interface ReceiptQuantityItem {
+  id: string
+  productName: string
+  lotSerial: string
+  demand: number
+  quantity: number
+  stock: number
+}
+
+export interface Receipt extends ReceiptListItem {
+  warehouseRef: string
+  sourceLocation: string
+  operationType: string
+  scheduleAt?: string
+  notes?: string
+  workflowStatus?: ReceiptWorkflowStatus
+  products: ReceiptProduct[]
+  quantityItems?: ReceiptQuantityItem[]
+}
+
 export type ProductStatus = 'Active' | 'Inactive'
 
 export type ProductPricingStatus = 'Active' | 'Inactive'
@@ -202,4 +247,23 @@ export interface Product extends ProductListItem {
   published: boolean
   trackInventory: boolean
   pricing: ProductPricing[]
+  bundle?: ProductBundle
+}
+
+export interface ProductBundleItem {
+  name: string
+  sku: string
+  quantity: number
+}
+
+export interface ProductBundleComponent {
+  id: string
+  name: string
+  required?: boolean
+  items: ProductBundleItem[]
+}
+
+export interface ProductBundle {
+  totalQuantity: number
+  components: ProductBundleComponent[]
 }

@@ -88,3 +88,18 @@ nuxt.config.ts         # modules: @nuxt/eslint, @nuxt/ui, @vueuse/nuxt
 - No test framework configured.
 - Despite the `crm-inventory` repo name, the codebase is still the base CRM dashboard template;
   inventory-specific features are not yet implemented.
+
+## Cursor Cloud specific instructions
+
+Single Nuxt service; no DB/auth/external dependencies. Dependencies are refreshed via `pnpm install`
+on startup (its `postinstall` runs `nuxt prepare`). Standard commands live in `package.json` /
+README: `pnpm dev` (dev server on `http://localhost:3000`), `pnpm lint`, `pnpm typecheck`,
+`pnpm build`, `pnpm preview`.
+
+Non-obvious caveats:
+- All API data is in-memory mock (`server/api/*`); changes do not persist across restarts.
+- Mutations are cosmetic: e.g. the "New customer" modal (`app/components/customers/AddModal.vue`)
+  only fires a success toast and does not POST or append a row to the table. Verify such flows by
+  the toast/UI feedback, not by expecting persisted data.
+- The success toast is transient and short-lived, so screen recordings may miss it; capture a
+  screenshot at the moment it appears for evidence.

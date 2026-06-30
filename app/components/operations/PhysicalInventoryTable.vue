@@ -11,11 +11,22 @@ const props = defineProps<{
 
 const UBadge = resolveComponent('UBadge')
 const UButton = resolveComponent('UButton')
-const UInput = resolveComponent('UInput')
+
+const toast = useToast()
 
 const counted = ref<Record<string, number | undefined>>({})
+const pendingApproval = ref<Record<string, boolean>>({})
 const page = ref(1)
 const pageSize = 10
+
+const inputModalOpen = ref(false)
+const confirmModalOpen = ref(false)
+const reasonModalOpen = ref(false)
+const activeItem = ref<PhysicalInventoryItem | null>(null)
+
+const activeCount = computed(() => {
+  return activeItem.value ? counted.value[activeItem.value.id] : undefined
+})
 
 const filtered = computed(() => {
   const query = props.search.trim().toLowerCase()
@@ -50,13 +61,7 @@ function getDifference(item: PhysicalInventoryItem): number | null {
 }
 
 function getStatus(item: PhysicalInventoryItem): PhysicalInventoryCountStatus {
-  const value = counted.value[item.id]
-
-  if (value === undefined || Number.isNaN(value)) {
-    return 'pending-count'
-  }
-
-  return value === item.onHand ? 'matched' : 'discrepancy'
+  return pendingApproval.value[item.id] ? 'pending-approval' : 'pending-count'
 }
 
 function formatDifference(item: PhysicalInventoryItem): string {
@@ -73,10 +78,44 @@ function formatDifference(item: PhysicalInventoryItem): string {
   return difference.toString()
 }
 
-const statusMap: Record<PhysicalInventoryCountStatus, { label: string, color: 'warning' | 'success' | 'error' }> = {
+const statusMap: Record<PhysicalInventoryCountStatus, { label: string, color: 'warning' | 'info' }> = {
   'pending-count': { label: 'Pending Count', color: 'warning' },
-  'matched': { label: 'Matched', color: 'success' },
-  'discrepancy': { label: 'Discrepancy', color: 'error' }
+  'pending-approval': { label: 'Pending Approval', color: 'info' }
+}
+
+function openInput(item: PhysicalInventoryItem) {
+  activeItem.value = item
+  inputModalOpen.value = true
+}
+
+function onSaveCount(value: number) {
+  if (activeItem.value) {
+    counted.value[activeItem.value.id] = value
+  }
+}
+
+function openApply(item: PhysicalInventoryItem) {
+  activeItem.value = item
+  confirmModalOpen.value = true
+}
+
+function onConfirmCount() {
+  confirmModalOpen.value = false
+  reasonModalOpen.value = true
+}
+
+function onRequestApproval() {
+  if (activeItem.value) {
+    pendingApproval.value[activeItem.value.id] = true
+  }
+
+  reasonModalOpen.value = false
+
+  toast.add({
+    title: 'Inventory Count Updated!',
+    description: 'Please check the update on the row!',
+    color: 'success'
+  })
 }
 
 const columns: TableColumn<PhysicalInventoryItem>[] = [{
@@ -96,23 +135,20 @@ const columns: TableColumn<PhysicalInventoryItem>[] = [{
   header: 'Counted',
   cell: ({ row }) => {
     const item = row.original
+    const value = counted.value[item.id]
 
-    return h(UInput, {
-      'modelValue': counted.value[item.id] ?? '',
-      'onUpdate:modelValue': (value: string | number) => {
-        if (value === '' || value === null) {
-          counted.value[item.id] = undefined
-          return
-        }
+    if (value === undefined) {
+      return h(UButton, {
+        label: 'Enter Value',
+        color: 'neutral',
+        variant: 'link',
+        size: 'sm',
+        class: 'p-0 text-muted hover:text-default',
+        onClick: () => openInput(item)
+      })
+    }
 
-        counted.value[item.id] = Number(value)
-      },
-      'type': 'number',
-      'placeholder': 'Enter Value',
-      'size': 'sm',
-      'class': 'min-w-28 font-medium',
-      'min': 0
-    })
+    return h('span', { class: 'font-medium text-highlighted' }, String(value))
   }
 }, {
   id: 'difference',
@@ -145,21 +181,31 @@ const columns: TableColumn<PhysicalInventoryItem>[] = [{
 }, {
   id: 'action',
   header: 'Action',
-  cell: () => h('div', { class: 'flex items-center gap-1' }, [
-    h(UButton, {
-      label: 'View Detail',
-      color: 'neutral',
-      variant: 'outline',
-      size: 'xs'
-    }),
-    h(UButton, {
-      icon: 'i-lucide-history',
-      color: 'neutral',
-      variant: 'outline',
-      size: 'xs',
-      square: true
-    })
-  ])
+  cell: ({ row }) => {
+    const item = row.original
+    const buttons = [
+      h(UButton, {
+        label: 'History',
+        icon: 'i-lucide-history',
+        color: 'neutral',
+        variant: 'outline',
+        size: 'xs'
+      })
+    ]
+
+    if (counted.value[item.id] !== undefined && !pendingApproval.value[item.id]) {
+      buttons.push(h(UButton, {
+        label: 'Apply',
+        icon: 'i-lucide-check',
+        color: 'primary',
+        variant: 'solid',
+        size: 'xs',
+        onClick: () => openApply(item)
+      }))
+    }
+
+    return h('div', { class: 'flex items-center gap-1' }, buttons)
+  }
 }]
 </script>
 
@@ -197,4 +243,22 @@ const columns: TableColumn<PhysicalInventoryItem>[] = [{
       />
     </div>
   </UCard>
+
+  <OperationsPhysicalInventoryInputCountModal
+    v-model:open="inputModalOpen"
+    :initial-value="activeCount"
+    @save="onSaveCount"
+  />
+
+  <OperationsPhysicalInventoryConfirmCountModal
+    v-model:open="confirmModalOpen"
+    :on-hand="activeItem?.onHand"
+    :counted="activeCount"
+    @confirm="onConfirmCount"
+  />
+
+  <OperationsPhysicalInventoryReasonModal
+    v-model:open="reasonModalOpen"
+    @request="onRequestApproval"
+  />
 </template>

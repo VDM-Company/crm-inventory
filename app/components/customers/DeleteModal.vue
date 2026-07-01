@@ -14,29 +14,15 @@ async function onSubmit() {
 </script>
 
 <template>
-  <UModal
-    v-model:open="open"
-    :title="`Delete ${count} customer${count > 1 ? 's' : ''}`"
-    :description="`Are you sure, this action cannot be undone.`"
-  >
-    <slot />
+  <div>
+    <div @click="open = true">
+      <slot />
+    </div>
 
-    <template #body>
-      <div class="flex justify-end gap-2">
-        <UButton
-          label="Cancel"
-          color="neutral"
-          variant="subtle"
-          @click="open = false"
-        />
-        <UButton
-          label="Delete"
-          color="error"
-          variant="solid"
-          loading-auto
-          @click="onSubmit"
-        />
-      </div>
-    </template>
-  </UModal>
+    <DeleteConfirmModal
+      v-model:open="open"
+      :title="count > 1 ? `Are you sure want to delete ${count} customers?` : 'Are you sure want to delete this data?'"
+      @confirm="onSubmit"
+    />
+  </div>
 </template>

@@ -5,6 +5,14 @@ defineProps<{
   bundle: ProductBundle
 }>()
 
+const emit = defineEmits<{
+  delete: [id: string]
+}>()
+
+const { open: deleteConfirmOpen, request: requestDelete, confirm: confirmDelete } = useDeleteConfirm((id: string) => {
+  emit('delete', id)
+})
+
 function componentTotal(component: ProductBundleComponent) {
   return component.items.reduce((sum, item) => sum + item.quantity, 0)
 }
@@ -62,6 +70,7 @@ function componentTotal(component: ProductBundleComponent) {
               color="neutral"
               variant="outline"
               size="sm"
+              @click="requestDelete(component.id)"
             />
             <UButton
               label="Edit"
@@ -101,4 +110,9 @@ function componentTotal(component: ProductBundleComponent) {
       </div>
     </div>
   </UCard>
+
+  <DeleteConfirmModal
+    v-model:open="deleteConfirmOpen"
+    @confirm="confirmDelete"
+  />
 </template>

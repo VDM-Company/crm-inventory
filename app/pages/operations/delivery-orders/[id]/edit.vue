@@ -188,6 +188,16 @@ function openSaveConfirm() {
   confirmOpen.value = true
 }
 
+function onDeleteQuantity(quantityId: string) {
+  quantityItems.value = quantityItems.value.filter(item => item.id !== quantityId)
+
+  toast.add({
+    title: 'Deleted',
+    description: 'Quantity item removed',
+    color: 'success'
+  })
+}
+
 function saveDraft() {
   toast.add({
     title: 'Draft saved',
@@ -457,7 +467,10 @@ function confirmSave() {
                 </h2>
               </template>
 
-              <OperationsDeliveryQuantityTable :data="quantityItems" />
+              <OperationsDeliveryQuantityTable
+                :data="quantityItems"
+                @delete="onDeleteQuantity"
+              />
             </UCard>
           </UForm>
         </div>

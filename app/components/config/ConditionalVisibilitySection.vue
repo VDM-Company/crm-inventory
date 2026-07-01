@@ -39,6 +39,10 @@ function removeCondition(index: number) {
   conditions.value.splice(index, 1)
 }
 
+const { open: deleteConfirmOpen, request: requestDelete, confirm: confirmDelete } = useDeleteConfirm((index: number) => {
+  removeCondition(index)
+})
+
 function saveCondition() {
   if (!canSaveCondition.value) {
     return
@@ -136,7 +140,7 @@ function saveCondition() {
             variant="ghost"
             square
             class="self-center"
-            @click="removeCondition(index)"
+            @click="requestDelete(index)"
           />
         </div>
       </div>
@@ -151,4 +155,9 @@ function saveCondition() {
       />
     </div>
   </UCard>
+
+  <DeleteConfirmModal
+    v-model:open="deleteConfirmOpen"
+    @confirm="confirmDelete"
+  />
 </template>

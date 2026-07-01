@@ -9,6 +9,14 @@ const props = defineProps<{
   search: string
 }>()
 
+const emit = defineEmits<{
+  delete: [id: string]
+}>()
+
+const { open: deleteConfirmOpen, request: requestDelete, confirm: confirmDelete } = useDeleteConfirm((id: string) => {
+  emit('delete', id)
+})
+
 const UBadge = resolveComponent('UBadge')
 const UButton = resolveComponent('UButton')
 const USwitch = resolveComponent('USwitch')
@@ -87,7 +95,7 @@ const columns: TableColumn<CustomField>[] = [{
 }, {
   id: 'action',
   header: 'Action',
-  cell: () => h('div', { class: 'flex items-center gap-1' }, [
+  cell: ({ row }) => h('div', { class: 'flex items-center gap-1' }, [
     h(UButton, {
       icon: 'i-lucide-pencil',
       color: 'neutral',
@@ -100,7 +108,8 @@ const columns: TableColumn<CustomField>[] = [{
       color: 'neutral',
       variant: 'outline',
       size: 'xs',
-      square: true
+      square: true,
+      onClick: () => requestDelete(row.original.id)
     })
   ])
 }]
@@ -127,4 +136,9 @@ const columns: TableColumn<CustomField>[] = [{
       }"
     />
   </UCard>
+
+  <DeleteConfirmModal
+    v-model:open="deleteConfirmOpen"
+    @confirm="confirmDelete"
+  />
 </template>

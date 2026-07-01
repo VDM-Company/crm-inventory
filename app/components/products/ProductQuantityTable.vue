@@ -13,6 +13,10 @@ const emit = defineEmits<{
   delete: [id: string]
 }>()
 
+const { open: deleteConfirmOpen, request: requestDelete, confirm: confirmDelete } = useDeleteConfirm((id: string) => {
+  emit('delete', id)
+})
+
 const UBadge = resolveComponent('UBadge')
 const UButton = resolveComponent('UButton')
 
@@ -96,7 +100,7 @@ const columns: TableColumn<ProductQuantityItem>[] = [{
     color: 'error',
     variant: 'outline',
     size: 'xs',
-    onClick: () => emit('delete', row.original.id)
+    onClick: () => requestDelete(row.original.id)
   })
 }]
 </script>
@@ -135,4 +139,9 @@ const columns: TableColumn<ProductQuantityItem>[] = [{
       />
     </div>
   </UCard>
+
+  <DeleteConfirmModal
+    v-model:open="deleteConfirmOpen"
+    @confirm="confirmDelete"
+  />
 </template>

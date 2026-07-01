@@ -7,6 +7,14 @@ defineProps<{
   data: DeliveryOrderQuantityItem[]
 }>()
 
+const emit = defineEmits<{
+  delete: [id: string]
+}>()
+
+const { open: deleteConfirmOpen, request: requestDelete, confirm: confirmDelete } = useDeleteConfirm((id: string) => {
+  emit('delete', id)
+})
+
 const UButton = resolveComponent('UButton')
 
 const columns: TableColumn<DeliveryOrderQuantityItem>[] = [{
@@ -32,7 +40,7 @@ const columns: TableColumn<DeliveryOrderQuantityItem>[] = [{
 }, {
   id: 'action',
   header: 'Action',
-  cell: () => h('div', { class: 'flex items-center gap-1' }, [
+  cell: ({ row }) => h('div', { class: 'flex items-center gap-1' }, [
     h(UButton, {
       label: 'Edit',
       icon: 'i-lucide-pencil',
@@ -44,7 +52,8 @@ const columns: TableColumn<DeliveryOrderQuantityItem>[] = [{
       icon: 'i-lucide-trash-2',
       color: 'neutral',
       variant: 'outline',
-      size: 'xs'
+      size: 'xs',
+      onClick: () => requestDelete(row.original.id)
     })
   ])
 }]
@@ -62,5 +71,10 @@ const columns: TableColumn<DeliveryOrderQuantityItem>[] = [{
       th: 'py-3.5 first:rounded-tl-xl last:rounded-tr-xl border-b border-default',
       td: 'border-b border-default py-4'
     }"
+  />
+
+  <DeleteConfirmModal
+    v-model:open="deleteConfirmOpen"
+    @confirm="confirmDelete"
   />
 </template>

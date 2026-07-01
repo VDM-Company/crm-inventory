@@ -7,6 +7,26 @@ const { data, status } = await useFetch<CustomField[]>('/api/fields', {
   lazy: true,
   default: () => []
 })
+
+const fields = ref<CustomField[]>([])
+
+watch(data, (value) => {
+  if (value) {
+    fields.value = [...value]
+  }
+}, { immediate: true })
+
+const toast = useToast()
+
+function onDeleteField(id: string) {
+  fields.value = fields.value.filter(field => field.id !== id)
+
+  toast.add({
+    title: 'Deleted',
+    description: 'Custom field removed',
+    color: 'success'
+  })
+}
 </script>
 
 <template>
@@ -46,9 +66,10 @@ const { data, status } = await useFetch<CustomField[]>('/api/fields', {
       </div>
 
       <ConfigFieldTable
-        :data="data"
+        :data="fields"
         :loading="status === 'pending'"
         :search="search"
+        @delete="onDeleteField"
       />
     </template>
   </UDashboardPanel>

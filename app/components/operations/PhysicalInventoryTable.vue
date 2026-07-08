@@ -22,6 +22,7 @@ const pageSize = 10
 const inputModalOpen = ref(false)
 const confirmModalOpen = ref(false)
 const reasonModalOpen = ref(false)
+const historyModalOpen = ref(false)
 const activeItem = ref<PhysicalInventoryItem | null>(null)
 
 const activeCount = computed(() => {
@@ -97,6 +98,11 @@ function onSaveCount(value: number) {
 function openApply(item: PhysicalInventoryItem) {
   activeItem.value = item
   confirmModalOpen.value = true
+}
+
+function openHistory(item: PhysicalInventoryItem) {
+  activeItem.value = item
+  historyModalOpen.value = true
 }
 
 function onConfirmCount() {
@@ -189,7 +195,8 @@ const columns: TableColumn<PhysicalInventoryItem>[] = [{
         icon: 'i-lucide-history',
         color: 'neutral',
         variant: 'outline',
-        size: 'xs'
+        size: 'xs',
+        onClick: () => openHistory(item)
       })
     ]
 
@@ -261,4 +268,6 @@ const columns: TableColumn<PhysicalInventoryItem>[] = [{
     v-model:open="reasonModalOpen"
     @request="onRequestApproval"
   />
+
+  <OperationsPhysicalInventoryHistoryModal v-model:open="historyModalOpen" />
 </template>

@@ -1,8 +1,18 @@
 <script setup lang="ts">
 const open = defineModel<boolean>('open', { default: false })
 
+withDefaults(defineProps<{
+  title: string
+  description?: string
+  confirmLabel?: string
+  confirmColor?: 'primary' | 'error'
+}>(), {
+  confirmLabel: 'Confirm',
+  confirmColor: 'primary'
+})
+
 const emit = defineEmits<{
-  approve: []
+  confirm: []
 }>()
 </script>
 
@@ -19,10 +29,13 @@ const emit = defineEmits<{
 
         <div class="space-y-1">
           <p class="text-base font-semibold text-highlighted">
-            Are you sure want to approve this request?
+            {{ title }}
           </p>
-          <p class="text-xs text-muted">
-            Make sure your approve is valid by data.
+          <p
+            v-if="description"
+            class="text-xs text-muted"
+          >
+            {{ description }}
           </p>
         </div>
 
@@ -34,9 +47,9 @@ const emit = defineEmits<{
             @click="open = false"
           />
           <UButton
-            label="Approve"
-            color="primary"
-            @click="emit('approve')"
+            :label="confirmLabel"
+            :color="confirmColor"
+            @click="emit('confirm')"
           />
         </div>
       </div>

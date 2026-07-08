@@ -27,6 +27,7 @@ const reasonModalOpen = ref(false)
 const historyModalOpen = ref(false)
 const adjustmentModalOpen = ref(false)
 const approveConfirmOpen = ref(false)
+const rejectConfirmOpen = ref(false)
 const activeItem = ref<PhysicalInventoryItem | null>(null)
 
 const activeCount = computed(() => {
@@ -125,12 +126,7 @@ function onApproveRequest() {
 
 function onRejectRequest() {
   adjustmentModalOpen.value = false
-
-  toast.add({
-    title: 'Request Rejected',
-    description: 'The adjustment request has been rejected.',
-    color: 'error'
-  })
+  rejectConfirmOpen.value = true
 }
 
 function onConfirmApprove() {
@@ -140,6 +136,16 @@ function onConfirmApprove() {
     title: 'Request Approved',
     description: 'The adjustment request has been approved.',
     color: 'success'
+  })
+}
+
+function onConfirmReject() {
+  rejectConfirmOpen.value = false
+
+  toast.add({
+    title: 'Request Rejected',
+    description: 'The adjustment request has been rejected.',
+    color: 'error'
   })
 }
 
@@ -329,8 +335,21 @@ const columns: TableColumn<PhysicalInventoryItem>[] = [{
     @reject="onRejectRequest"
   />
 
-  <OperationsPhysicalInventoryApproveConfirmModal
+  <OperationsPhysicalInventoryConfirmActionModal
     v-model:open="approveConfirmOpen"
-    @approve="onConfirmApprove"
+    title="Are you sure want to approve this request?"
+    description="Make sure your approve is valid by data."
+    confirm-label="Approve"
+    confirm-color="primary"
+    @confirm="onConfirmApprove"
+  />
+
+  <OperationsPhysicalInventoryConfirmActionModal
+    v-model:open="rejectConfirmOpen"
+    title="Are you sure want to reject this request?"
+    description="Make sure your reject is valid by data."
+    confirm-label="Reject"
+    confirm-color="error"
+    @confirm="onConfirmReject"
   />
 </template>

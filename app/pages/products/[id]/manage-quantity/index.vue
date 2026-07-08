@@ -15,6 +15,8 @@ const { data: quantities, status: quantitiesStatus } = await useFetch<ProductQua
 
 const search = ref('')
 const addModalOpen = ref(false)
+const deleteConfirmOpen = ref(false)
+const deleteId = ref<string | null>(null)
 const toast = useToast()
 
 const items = ref<ProductQuantityItem[]>([])
@@ -43,7 +45,17 @@ function onCreate(item: Omit<ProductQuantityItem, 'id'>) {
 }
 
 function onDelete(quantityId: string) {
-  items.value = items.value.filter(item => item.id !== quantityId)
+  deleteId.value = quantityId
+  deleteConfirmOpen.value = true
+}
+
+function onConfirmDelete() {
+  if (deleteId.value !== null) {
+    items.value = items.value.filter(item => item.id !== deleteId.value)
+  }
+
+  deleteConfirmOpen.value = false
+  deleteId.value = null
 
   toast.add({
     title: 'Deleted',
@@ -180,6 +192,17 @@ function onImportCsv() {
         <ProductsAddProductQuantityModal
           v-model:open="addModalOpen"
           @create="onCreate"
+        />
+
+        <ConfirmActionModal
+          v-model:open="deleteConfirmOpen"
+          title="Are you sure want to delete this item?"
+          description="This action cannot be undone."
+          confirm-label="Delete"
+          confirm-color="error"
+          icon="i-lucide-trash-2"
+          icon-color="error"
+          @confirm="onConfirmDelete"
         />
       </div>
     </template>

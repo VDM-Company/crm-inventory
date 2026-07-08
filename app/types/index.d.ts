@@ -101,7 +101,7 @@ export interface IncomingStockItem {
   status: IncomingStatus
 }
 
-export type PhysicalInventoryCountStatus = 'pending-count' | 'matched' | 'discrepancy'
+export type PhysicalInventoryCountStatus = 'pending-count' | 'pending-approval'
 
 export interface PhysicalInventoryItem {
   id: string

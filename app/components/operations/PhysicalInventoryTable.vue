@@ -11,11 +11,13 @@ const props = defineProps<{
 
 const UBadge = resolveComponent('UBadge')
 const UButton = resolveComponent('UButton')
+const UDropdownMenu = resolveComponent('UDropdownMenu')
 
 const toast = useToast()
 
 const counted = ref<Record<string, number | undefined>>({})
 const pendingApproval = ref<Record<string, boolean>>({})
+const reasons = ref<Record<string, string>>({})
 const page = ref(1)
 const pageSize = 10
 
@@ -23,10 +25,17 @@ const inputModalOpen = ref(false)
 const confirmModalOpen = ref(false)
 const reasonModalOpen = ref(false)
 const historyModalOpen = ref(false)
+const adjustmentModalOpen = ref(false)
+const approveConfirmOpen = ref(false)
+const rejectConfirmOpen = ref(false)
 const activeItem = ref<PhysicalInventoryItem | null>(null)
 
 const activeCount = computed(() => {
   return activeItem.value ? counted.value[activeItem.value.id] : undefined
+})
+
+const activeReason = computed(() => {
+  return activeItem.value ? reasons.value[activeItem.value.id] : undefined
 })
 
 const filtered = computed(() => {
@@ -105,14 +114,50 @@ function openHistory(item: PhysicalInventoryItem) {
   historyModalOpen.value = true
 }
 
+function openAdjustment(item: PhysicalInventoryItem) {
+  activeItem.value = item
+  adjustmentModalOpen.value = true
+}
+
+function onApproveRequest() {
+  adjustmentModalOpen.value = false
+  approveConfirmOpen.value = true
+}
+
+function onRejectRequest() {
+  adjustmentModalOpen.value = false
+  rejectConfirmOpen.value = true
+}
+
+function onConfirmApprove() {
+  approveConfirmOpen.value = false
+
+  toast.add({
+    title: 'Request Approved',
+    description: 'The adjustment request has been approved.',
+    color: 'success'
+  })
+}
+
+function onConfirmReject() {
+  rejectConfirmOpen.value = false
+
+  toast.add({
+    title: 'Request Rejected',
+    description: 'The adjustment request has been rejected.',
+    color: 'error'
+  })
+}
+
 function onConfirmCount() {
   confirmModalOpen.value = false
   reasonModalOpen.value = true
 }
 
-function onRequestApproval() {
+function onRequestApproval(reason: string) {
   if (activeItem.value) {
     pendingApproval.value[activeItem.value.id] = true
+    reasons.value[activeItem.value.id] = reason
   }
 
   reasonModalOpen.value = false
@@ -189,29 +234,39 @@ const columns: TableColumn<PhysicalInventoryItem>[] = [{
   header: 'Action',
   cell: ({ row }) => {
     const item = row.original
-    const buttons = [
-      h(UButton, {
-        label: 'History',
-        icon: 'i-lucide-history',
-        color: 'neutral',
-        variant: 'outline',
-        size: 'xs',
-        onClick: () => openHistory(item)
-      })
-    ]
+    const items = [{
+      label: 'See Adjustment Request',
+      icon: 'i-lucide-file-search',
+      onSelect: () => openAdjustment(item)
+    }]
 
     if (counted.value[item.id] !== undefined && !pendingApproval.value[item.id]) {
-      buttons.push(h(UButton, {
+      items.push({
         label: 'Apply',
         icon: 'i-lucide-check',
-        color: 'primary',
-        variant: 'solid',
-        size: 'xs',
-        onClick: () => openApply(item)
-      }))
+        onSelect: () => openApply(item)
+      })
     }
 
-    return h('div', { class: 'flex items-center gap-1' }, buttons)
+    items.push({
+      label: 'History',
+      icon: 'i-lucide-history',
+      onSelect: () => openHistory(item)
+    })
+
+    return h('div', { class: 'flex items-center' }, [
+      h(UDropdownMenu, {
+        items,
+        content: { align: 'end' }
+      }, () => h(UButton, {
+        'icon': 'i-lucide-ellipsis-vertical',
+        'color': 'neutral',
+        'variant': 'ghost',
+        'size': 'sm',
+        'square': true,
+        'aria-label': 'Row actions'
+      }))
+    ])
   }
 }]
 </script>
@@ -270,4 +325,31 @@ const columns: TableColumn<PhysicalInventoryItem>[] = [{
   />
 
   <OperationsPhysicalInventoryHistoryModal v-model:open="historyModalOpen" />
+
+  <OperationsPhysicalInventoryAdjustmentRequestModal
+    v-model:open="adjustmentModalOpen"
+    :on-hand="activeItem?.onHand"
+    :counted="activeCount"
+    :reason="activeReason"
+    @approve="onApproveRequest"
+    @reject="onRejectRequest"
+  />
+
+  <OperationsPhysicalInventoryConfirmActionModal
+    v-model:open="approveConfirmOpen"
+    title="Are you sure want to approve this request?"
+    description="Make sure your approve is valid by data."
+    confirm-label="Approve"
+    confirm-color="primary"
+    @confirm="onConfirmApprove"
+  />
+
+  <OperationsPhysicalInventoryConfirmActionModal
+    v-model:open="rejectConfirmOpen"
+    title="Are you sure want to reject this request?"
+    description="Make sure your reject is valid by data."
+    confirm-label="Reject"
+    confirm-color="error"
+    @confirm="onConfirmReject"
+  />
 </template>

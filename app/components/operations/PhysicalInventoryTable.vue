@@ -335,7 +335,7 @@ const columns: TableColumn<PhysicalInventoryItem>[] = [{
     @reject="onRejectRequest"
   />
 
-  <OperationsPhysicalInventoryConfirmActionModal
+  <ConfirmActionModal
     v-model:open="approveConfirmOpen"
     title="Are you sure want to approve this request?"
     description="Make sure your approve is valid by data."
@@ -344,7 +344,7 @@ const columns: TableColumn<PhysicalInventoryItem>[] = [{
     @confirm="onConfirmApprove"
   />
 
-  <OperationsPhysicalInventoryConfirmActionModal
+  <ConfirmActionModal
     v-model:open="rejectConfirmOpen"
     title="Are you sure want to reject this request?"
     description="Make sure your reject is valid by data."

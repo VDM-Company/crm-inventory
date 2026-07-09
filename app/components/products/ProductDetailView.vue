@@ -13,8 +13,14 @@ const route = useRoute()
 const id = computed(() => route.params.id as string)
 
 const toast = useToast()
+const deleteConfirmOpen = ref(false)
 
 function onDelete() {
+  deleteConfirmOpen.value = true
+}
+
+function onConfirmDelete() {
+  deleteConfirmOpen.value = false
   emit('delete')
   toast.add({
     title: 'Deleted',
@@ -261,6 +267,17 @@ const trackingLabel = computed(() => {
     <ProductsProductBundleSection
       v-if="product.bundle"
       :bundle="product.bundle"
+    />
+
+    <ConfirmActionModal
+      v-model:open="deleteConfirmOpen"
+      title="Are you sure want to delete this item?"
+      description="This action cannot be undone."
+      confirm-label="Delete"
+      confirm-color="error"
+      icon="i-lucide-trash-2"
+      icon-color="error"
+      @confirm="onConfirmDelete"
     />
   </div>
 </template>

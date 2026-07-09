@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import * as z from 'zod'
-import type { Product, ProductPricing, ProductStatus } from '~/types'
+import type { Product, ProductBundleComponent, ProductPricing, ProductStatus } from '~/types'
 
 const props = withDefaults(defineProps<{
   mode?: 'create' | 'edit'
@@ -64,12 +64,23 @@ const state = reactive<FormState>({
 })
 
 const pricing = ref<ProductPricing[]>([])
+const bundleComponents = ref<ProductBundleComponent[]>([])
 const pricingModalOpen = ref(false)
+const bundleModalOpen = ref(false)
+const editingBundleComponent = ref<ProductBundleComponent | null>(null)
 const toast = useToast()
 
 const productTypeOptions = [
   { label: 'Single', value: 'Single' },
-  { label: 'Dual', value: 'Dual' }
+  { label: 'Dual', value: 'Dual' },
+  { label: 'Bundling', value: 'Bundling' }
+]
+
+const bundleProductOptions = [
+  { label: 'Nec Device', value: 'nec', name: 'Nec Device', sku: 'nec_device_sku' },
+  { label: 'X4 Device', value: 'x4', name: 'Nec Device', sku: 'x4_device_sku' },
+  { label: 'Docomo 1GB', value: 'docomo', name: 'Docomo 1GB', sku: 'd_1gb_device_sku' },
+  { label: 'Softbank 1GB', value: 'softbank', name: 'Softbank 1GB', sku: 's_1gb_device_sku' }
 ]
 
 const categoryOptions = ref([
@@ -169,6 +180,12 @@ function applyProduct(product: Product) {
   state.trackInventory = product.trackInventory
   state.trackedBy = product.trackedBy
   pricing.value = [...product.pricing]
+  bundleComponents.value = product.bundle
+    ? product.bundle.components.map(component => ({
+        ...component,
+        items: component.items.map(item => ({ ...item }))
+      }))
+    : []
 }
 
 watch(() => props.product, (product) => {
@@ -228,6 +245,44 @@ function addPricing(payload: Omit<ProductPricing, 'id' | 'statusSince'> & { stat
     activationMethod: payload.activationMethod,
     pricingActive: payload.pricingActive
   })
+}
+
+function openCreateBundleComponent() {
+  editingBundleComponent.value = null
+  bundleModalOpen.value = true
+}
+
+function openEditBundleComponent(component: ProductBundleComponent) {
+  editingBundleComponent.value = component
+  bundleModalOpen.value = true
+}
+
+function onSaveBundleComponent(payload: Omit<ProductBundleComponent, 'id'> & { id?: string }) {
+  if (payload.id) {
+    const index = bundleComponents.value.findIndex(component => component.id === payload.id)
+
+    if (index >= 0) {
+      bundleComponents.value[index] = {
+        id: payload.id,
+        name: payload.name,
+        required: payload.required,
+        items: payload.items
+      }
+    }
+
+    return
+  }
+
+  bundleComponents.value.push({
+    id: String(Date.now()),
+    name: payload.name,
+    required: payload.required,
+    items: payload.items
+  })
+}
+
+function onDeleteBundleComponent(id: string) {
+  bundleComponents.value = bundleComponents.value.filter(component => component.id !== id)
 }
 </script>
 
@@ -375,6 +430,13 @@ function addPricing(payload: Omit<ProductPricing, 'id' | 'statusSince'> & { stat
             </UFormField>
           </div>
         </UCard>
+
+        <ProductsBundleFormSection
+          v-model:components="bundleComponents"
+          @create="openCreateBundleComponent"
+          @edit="openEditBundleComponent"
+          @delete="onDeleteBundleComponent"
+        />
 
         <UCard>
           <template #header>
@@ -533,6 +595,13 @@ function addPricing(payload: Omit<ProductPricing, 'id' | 'statusSince'> & { stat
       v-model:open="createModalOpen"
       :title="createModalTitle"
       @save="onCreateOption"
+    />
+
+    <ProductsCreateBundleComponentModal
+      v-model:open="bundleModalOpen"
+      :component="editingBundleComponent"
+      :product-options="bundleProductOptions"
+      @save="onSaveBundleComponent"
     />
   </div>
 </template>

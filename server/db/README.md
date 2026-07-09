@@ -8,7 +8,7 @@ this database is a separate, future piece of work.
 
 1. Install Docker (Docker Desktop, OrbStack, or colima).
 2. `cp .env.example .env` (adjust `DATABASE_URL` if needed).
-3. Start Postgres: `docker compose up -d db`
+3. Start Postgres: `docker compose up -d --wait db` — `--wait` blocks until Postgres passes its healthcheck, so you can run `pnpm db:migrate` immediately after.
 4. Apply migrations: `pnpm db:migrate`
 5. Seed sample data: `pnpm db:seed`
 6. Check everything: `pnpm db:verify`

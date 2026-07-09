@@ -39,9 +39,11 @@ const paged = computed(() => {
   return filtered.value.slice(start, start + pageSize)
 })
 
-const statusMap: Record<ProductStatus, { color: 'primary' | 'neutral' }> = {
+const statusMap: Record<ProductStatus, { color: 'primary' | 'neutral' | 'error' }> = {
   Active: { color: 'primary' },
-  Inactive: { color: 'neutral' }
+  Inactive: { color: 'neutral' },
+  Draft: { color: 'neutral' },
+  Discontinued: { color: 'error' }
 }
 
 const columns: TableColumn<ProductListItem>[] = [{

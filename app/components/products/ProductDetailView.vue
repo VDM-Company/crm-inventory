@@ -38,6 +38,13 @@ function displayValue(value?: string | null) {
   return value
 }
 
+const statusColorMap: Record<string, 'primary' | 'neutral' | 'error'> = {
+  Active: 'primary',
+  Inactive: 'neutral',
+  Draft: 'neutral',
+  Discontinued: 'error'
+}
+
 const publishedLabel = computed(() => {
   if (props.product.published) {
     return 'Active'
@@ -211,7 +218,7 @@ const trackingLabel = computed(() => {
             </p>
             <UBadge
               variant="subtle"
-              :color="product.status === 'Active' ? 'primary' : 'neutral'"
+              :color="statusColorMap[product.status] ?? 'neutral'"
               class="text-[10px]"
             >
               {{ product.status }}

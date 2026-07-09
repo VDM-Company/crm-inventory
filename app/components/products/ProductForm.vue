@@ -72,21 +72,73 @@ const productTypeOptions = [
   { label: 'Dual', value: 'Dual' }
 ]
 
-const categoryOptions = [
-  { label: 'Sim / Sim Cards', value: 'Sim / Sim Cards' },
-  { label: 'Smartphones', value: 'Smartphones' },
-  { label: 'Tablets', value: 'Tablets' }
-]
+const categoryOptions = ref([
+  { label: 'SIM Cards', value: 'SIM Cards' },
+  { label: 'eSIMs', value: 'eSIMs' },
+  { label: 'Devices', value: 'Devices' },
+  { label: 'Accessories', value: 'Accessories' },
+  { label: 'Packaging/Boxes', value: 'Packaging/Boxes' },
+  { label: 'Booklet/Pamphlet', value: 'Booklet/Pamphlet' }
+])
 
-const companyOptions = [
+const companyOptions = ref([
   { label: 'VDM', value: 'VDM' },
-  { label: 'VDS', value: 'VDS' }
-]
+  { label: 'Globiz', value: 'Globiz' },
+  { label: 'Mashup', value: 'Mashup' }
+])
 
-const statusOptions = [
+const statusOptions = ref([
   { label: 'Active', value: 'Active' },
-  { label: 'Inactive', value: 'Inactive' }
-]
+  { label: 'Inactive', value: 'Inactive' },
+  { label: 'Draft', value: 'Draft' },
+  { label: 'Discontinued', value: 'Discontinued' }
+])
+
+const statusColorMap: Record<ProductStatus, 'primary' | 'neutral' | 'error'> = {
+  Active: 'primary',
+  Inactive: 'neutral',
+  Draft: 'neutral',
+  Discontinued: 'error'
+}
+
+type CreateField = 'category' | 'company' | 'status'
+
+const createModalOpen = ref(false)
+const createField = ref<CreateField | null>(null)
+
+const createModalTitle = computed(() => {
+  if (createField.value === 'category') {
+    return 'Create a new category'
+  }
+
+  if (createField.value === 'company') {
+    return 'Create a new company'
+  }
+
+  if (createField.value === 'status') {
+    return 'Create a new status'
+  }
+
+  return ''
+})
+
+function openCreateModal(field: CreateField) {
+  createField.value = field
+  createModalOpen.value = true
+}
+
+function onCreateOption(name: string) {
+  if (createField.value === 'category') {
+    categoryOptions.value.push({ label: name, value: name })
+    state.settingsCategory = name
+  } else if (createField.value === 'company') {
+    companyOptions.value.push({ label: name, value: name })
+    state.company = name
+  } else if (createField.value === 'status') {
+    statusOptions.value.push({ label: name, value: name as ProductStatus })
+    state.status = name as ProductStatus
+  }
+}
 
 const platformOptions = [
   { label: 'SK', value: 'SK' },
@@ -366,6 +418,7 @@ function addPricing(payload: Omit<ProductPricing, 'id' | 'statusSince'> & { stat
                 color="neutral"
                 variant="outline"
                 square
+                @click="openCreateModal('category')"
               />
             </div>
           </UFormField>
@@ -383,17 +436,37 @@ function addPricing(payload: Omit<ProductPricing, 'id' | 'statusSince'> & { stat
                 color="neutral"
                 variant="outline"
                 square
+                @click="openCreateModal('company')"
               />
             </div>
           </UFormField>
 
           <UFormField label="Product Status" required>
-            <USelect
-              v-model="state.status"
-              :items="statusOptions"
-              placeholder="Select one"
-              class="w-full"
-            />
+            <div class="flex items-center gap-2">
+              <USelect
+                v-model="state.status"
+                :items="statusOptions"
+                placeholder="Select one"
+                class="w-full"
+              >
+                <template #item="{ item }">
+                  <UBadge
+                    variant="subtle"
+                    :color="statusColorMap[item.value as ProductStatus]"
+                    class="text-[10px]"
+                  >
+                    {{ item.label }}
+                  </UBadge>
+                </template>
+              </USelect>
+              <UButton
+                icon="i-lucide-plus"
+                color="neutral"
+                variant="outline"
+                square
+                @click="openCreateModal('status')"
+              />
+            </div>
           </UFormField>
 
           <UFormField label="Platform" required>
@@ -454,6 +527,12 @@ function addPricing(payload: Omit<ProductPricing, 'id' | 'statusSince'> & { stat
       v-model:open="pricingModalOpen"
       :next-version="nextPriceVersion"
       @save="addPricing"
+    />
+
+    <ProductsCreateSelectOptionModal
+      v-model:open="createModalOpen"
+      :title="createModalTitle"
+      @save="onCreateOption"
     />
   </div>
 </template>

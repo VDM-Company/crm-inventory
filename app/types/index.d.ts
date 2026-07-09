@@ -208,7 +208,7 @@ export interface Receipt extends ReceiptListItem {
   quantityItems?: ReceiptQuantityItem[]
 }
 
-export type ProductStatus = 'Active' | 'Inactive'
+export type ProductStatus = 'Active' | 'Inactive' | 'Draft' | 'Discontinued'
 
 export type ProductPricingStatus = 'Active' | 'Inactive'
 

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { CalendarDate, getLocalTimeZone } from '@internationalized/date'
+import { format } from 'date-fns'
 import type { ProductPricing, ProductPricingType } from '~/types'
 
 const open = defineModel<boolean>('open', { default: false })
@@ -17,6 +19,8 @@ const monthlyFee = ref('20000')
 const initialFee = ref('1000')
 const depositFee = ref('1000')
 const activationMethod = ref<'scheduled' | 'immediate'>('immediate')
+const startDate = shallowRef(new CalendarDate(2026, 6, 1))
+const inputDate = useTemplateRef('inputDate')
 const pricingActive = ref(true)
 
 const pricingPlanOptions = [
@@ -31,6 +35,7 @@ function resetForm() {
   initialFee.value = '1000'
   depositFee.value = '1000'
   activationMethod.value = 'immediate'
+  startDate.value = new CalendarDate(2026, 6, 1)
   pricingActive.value = true
 }
 
@@ -40,6 +45,10 @@ function formatFee(value: string) {
     return '¥0 JYP'
   }
   return `¥${amount.toLocaleString('en-US')} JYP`
+}
+
+function formatStartDate(date: CalendarDate) {
+  return format(date.toDate(getLocalTimeZone()), 'dd/MM/yyyy')
 }
 
 function savePrice() {
@@ -52,6 +61,9 @@ function savePrice() {
     pricingPlan: pricingPlan.value,
     depositFee: formatFee(depositFee.value),
     activationMethod: activationMethod.value,
+    activationStartDate: activationMethod.value === 'scheduled'
+      ? formatStartDate(startDate.value)
+      : undefined,
     pricingActive: pricingActive.value
   })
   open.value = false
@@ -188,6 +200,39 @@ watch(open, (value) => {
                   <p class="text-sm text-muted">
                     Price actives automatically on chosen day
                   </p>
+                  <div
+                    v-if="activationMethod === 'scheduled'"
+                    class="mt-3"
+                    @click.stop
+                  >
+                    <UFormField label="Start Date">
+                      <UInputDate
+                        ref="inputDate"
+                        v-model="startDate"
+                        class="w-full"
+                      >
+                        <template #trailing>
+                          <UPopover :reference="inputDate?.inputsRef[3]?.$el">
+                            <UButton
+                              color="neutral"
+                              variant="link"
+                              size="sm"
+                              icon="i-lucide-calendar"
+                              aria-label="Select a date"
+                              class="px-0"
+                            />
+
+                            <template #content>
+                              <UCalendar
+                                v-model="startDate"
+                                class="p-2"
+                              />
+                            </template>
+                          </UPopover>
+                        </template>
+                      </UInputDate>
+                    </UFormField>
+                  </div>
                 </div>
               </div>
             </button>

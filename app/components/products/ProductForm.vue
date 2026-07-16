@@ -243,6 +243,7 @@ function addPricing(payload: Omit<ProductPricing, 'id' | 'statusSince'> & { stat
     pricingPlan: payload.pricingPlan,
     depositFee: payload.depositFee,
     activationMethod: payload.activationMethod,
+    activationStartDate: payload.activationStartDate,
     pricingActive: payload.pricingActive
   })
 }

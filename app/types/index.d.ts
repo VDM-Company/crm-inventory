@@ -236,6 +236,7 @@ export interface ProductPricing {
   pricingPlan?: string
   depositFee?: string
   activationMethod?: 'scheduled' | 'immediate'
+  activationStartDate?: string
   pricingActive?: boolean
 }
 
